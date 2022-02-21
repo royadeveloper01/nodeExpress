@@ -7,8 +7,8 @@ const rootDir = require('./util/path');
 
 const app = express();
 
-app.set('view engine', 'pug');
-app.set('views', 'views');
+app.set('view engine', 'ejs');
+// app.set('views', 'views'); // A default setting for the templating engine, you do not need it, if you already have a views folder.
 
 const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -17,10 +17,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/admin', adminData.routes);
-app.use(shopRoutes);
+app.use(shopRoutes); 
 
 app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(rootDir, 'views', 'error-page.html'))
+    // res.status(404).sendFile(path.join(rootDir, 'views', 'error-page.html'));
+    res.status(404).render('error-page', {
+        pageTitle: 'Page not found'
+    });
 });
 
-app.listen(3000); 
+app.listen(3000);
