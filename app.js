@@ -3,27 +3,22 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const rootDir = require('./util/path');
-
 const app = express();
+
+const errorPageController = require('./controllers/404');
 
 app.set('view engine', 'ejs');
 // app.set('views', 'views'); // A default setting for the templating engine, you do not need it, if you already have a views folder.
 
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes); 
 
-app.use((req, res, next) => {
-    // res.status(404).sendFile(path.join(rootDir, 'views', 'error-page.html'));
-    res.status(404).render('error-page', {
-        pageTitle: 'Page not found'
-    });
-});
+app.use(errorPageController.getErrorPage);
 
 app.listen(3000);
