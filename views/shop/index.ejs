@@ -31,11 +31,11 @@
                             <h1 class="product__title"><%= product.title %></h1>
                         </header>
                         <div class="card__image">
-                            <img src="/love-gf2938b36e_1280.jpg" alt="Image">
+                            <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
                         </div>
                         <div class="card__content">
-                            <h2 class="product__price">$19.9</h2>
-                            <p class="product__description">A very interesting book about so many even more</p>
+                            <h2 class="product__price">$<%= product.price %></h2>
+                            <p class="product__description"><%= product.description %></p>
                         </div>
                         <div class="card-options">
                             <button class="btn">Add to Cart</button>
