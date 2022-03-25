@@ -5,6 +5,20 @@
 <body>
 <%-include('../includes/navigation.ejs') %>
 <main>
-    <h2>Coming Soon!!!</h2>
+    <% if (products.length > 0) { %>
+        <ol>
+             <% products.forEach(p => { %>
+                <li>
+                    <p><%= p.productData.title %> (<%= p.qty %>)</p>
+                    <form action="/cart-delete-item" method="POST">
+                        <input type="hidden" name="productId" value="<%= p.productData.id %>">
+                        <button class="btn" type="submit">Delete</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ol>
+    <% } else { %>
+        <h1>No Products Available!!!</h1>
+    <% } %>
 </main>
 <%-include('../includes/end.ejs') %>
