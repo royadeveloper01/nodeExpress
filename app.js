@@ -6,13 +6,15 @@ const bodyParser = require('body-parser');
 const app = express();
 
 const errorPageController = require('./controllers/404');
-// const db = require('./util/database');
 
 app.set('view engine', 'ejs');
 // app.set('views', 'views'); // A default setting for the templating engine, you do not need it, if you already have a views folder.
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const sequelize = require('./util/database');
+const Product = require('./models/product');
+const User = require('./models/user');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/assets')));
@@ -22,4 +24,14 @@ app.use(shopRoutes);
 
 app.use(errorPageController.getErrorPage);
 
-app.listen(3000);
+Product.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+User.hasMany(Product);
+
+sequelize.sync({force: true})
+.then(result => {
+    // console.log(result);
+    app.listen(3000);
+})
+.catch(err => {
+    console.log(err)
+});
