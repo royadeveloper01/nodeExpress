@@ -27,7 +27,9 @@ app.use(errorPageController.getErrorPage);
 Product.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
 User.hasMany(Product);
 
-sequelize.sync({force: true})
+sequelize
+// .sync({force: true}) // To overwrite your table
+.sync()
 .then(result => {
     // console.log(result);
     app.listen(3000);
