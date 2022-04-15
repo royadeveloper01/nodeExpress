@@ -2,11 +2,11 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
 
 const errorPageController = require('./controllers/404');
-const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
 app.set('view engine', 'ejs');
@@ -19,9 +19,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/assets')));
 
 app.use((req, res, next) => {
-    User.findById('624f4f420b0c36391f6add0e')
+    User.findById('6258ca7b0fc7a1a12bcbeb6c')
     .then(user => {
-        req.user = new User(user.name, user.email, user.cart, user._id);
+        req.user = user;
         next();
     })
     .catch(err => console.log(err));
@@ -32,6 +32,25 @@ app.use(shopRoutes);
 
 app.use(errorPageController.getErrorPage);
 
-mongoConnect(() => {
-    app.listen(3000);
+const uri = "mongodb+srv://prince:node1234@cluster0.nihym.mongodb.net/shop?retryWrites=true&w=majority";
+
+mongoose
+.connect(uri)
+.then(result => {
+    User.findOne().then(user => {
+        if (!user) {
+            const user = new User({
+                name: 'Pablo',
+                email: 'test@test.com',
+                cart: {
+                    items: []
+                }
+            });
+            user.save();
+        }
+    })
+    app.listen(3000)
+})
+.catch(err => {
+    console.log(err);
 })

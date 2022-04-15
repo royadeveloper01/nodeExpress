@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
     .then(products => {
         res.render('shop/product-list', {
             prods: products, 
@@ -26,7 +26,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
     .then(products => {
         res.render('shop/index', {
             prods: products, 
@@ -74,43 +74,22 @@ exports.postDeleteCart  = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-    req.user.addOrder() 
-    // let fetchedCart;
-    // req.user.getCart()
-    // .then(cart => {
-    //     fetchedCart = cart;
-    //     return cart.getProducts();
-    // })
-    // .then(products => {
-    //     return req.user.createOrder()
-    //     .then(order => {
-    //         return order.addProducts(
-    //             products.map(product => {
-    //                 product.orderItem = { quantity: product.cartItem.quantity };
-    //                 return product;
-    //             })
-    //         );
-    //     })
-    //     .catch(err => console.log(err));
-    // })
-    // .then(result => {
-    //     return fetchedCart.setProducts(null);
-    // })
+    req.user.addOrder()
     .then(() => {
         res.redirect('/orders');
     })
     .catch(err => console.log(err));
 };
 
-// exports.getOrders = (req, res, next) => {
-//     req.user.getOrders({include: ['products']})
-//         .then(orders => {
-//             // console.log(orders);
-//             res.render('shop/orders', {
-//             path: '/orders',
-//             pageTitle: 'Your Orders',
-//             orders: orders
-//         });
-//     })
-//     .catch(err => console.log(err));
-// };
+exports.getOrders = (req, res, next) => {
+    req.user.getOrders()
+        .then(orders => {
+            // console.log(orders);
+            res.render('shop/orders', {
+            path: '/orders',
+            pageTitle: 'Your Orders',
+            orders: orders
+        });
+    })
+    .catch(err => console.log(err));
+};
