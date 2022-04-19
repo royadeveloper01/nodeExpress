@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 const app = express();
 
@@ -14,9 +15,13 @@ app.set('view engine', 'ejs');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/assets')));
+app.use(
+    session({secret: 'my secret', resave: false, saveUninitialized: false})
+);
 
 app.use((req, res, next) => {
     User.findById('6258ca7b0fc7a1a12bcbeb6c')
@@ -28,7 +33,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/admin', adminRoutes);
-app.use(shopRoutes); 
+app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorPageController.getErrorPage);
 
