@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const app = express();
 
@@ -13,6 +14,13 @@ const User = require('./models/user');
 app.set('view engine', 'ejs');
 // app.set('views', 'views'); // A default setting for the template engine, you do not need it, if you already have a views folder.
 
+const MONGODB_URI = "mongodb+srv://prince:node1234@cluster0.nihym.mongodb.net/shop?retryWrites=true&w=majority";
+
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'mySessions'
+});
+
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
@@ -20,7 +28,12 @@ const authRoutes = require('./routes/auth');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/assets')));
 app.use(
-    session({secret: 'my secret', resave: false, saveUninitialized: false})
+    session({
+        secret: 'my secret', 
+        resave: false, 
+        saveUninitialized: false,
+        store: store
+    })
 );
 
 app.use((req, res, next) => {
@@ -38,10 +51,8 @@ app.use(authRoutes);
 
 app.use(errorPageController.getErrorPage);
 
-const uri = "mongodb+srv://prince:node1234@cluster0.nihym.mongodb.net/shop?retryWrites=true&w=majority";
-
 mongoose
-.connect(uri)
+.connect(MONGODB_URI)
 .then(result => {
     User.findOne().then(user => {
         if (!user) {
