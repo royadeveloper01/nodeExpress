@@ -8,7 +8,7 @@ exports.getProducts = (req, res, next) => {
             prods: products, 
             pageTitle: 'Pablo Bay', 
             path: '/products',
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
         });
     })
     .catch(err => console.log(err));
@@ -22,7 +22,7 @@ exports.getProduct = (req, res, next) => {
             product: product,
             pageTitle: product.title,
             path: '/products',
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
         });
     })
     .catch(err => console.log(err));
@@ -35,7 +35,7 @@ exports.getIndex = (req, res, next) => {
             prods: products, 
             pageTitle: 'Pablo Bay', 
             path: '/',
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
         });
     })
     .catch(err => console.log(err));
@@ -49,7 +49,8 @@ exports.getCart = (req, res, next) => {
             res.render('shop/cart', {
                 path: '/cart',
                 pageTitle: 'Your Cart',
-                products: products
+                products: products,
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => console.log(err));
@@ -71,11 +72,12 @@ exports.postCart = (req, res, next) => {
 
 exports.postDeleteCart  = (req, res, next) => {
     const prodId = req.body.productId;
-    req.user.removeFromCart(prodId)
-    .then(result => {
-        res.redirect('/cart');
-    })
-    .catch(err => console.log(err));
+    req.user
+        .removeFromCart(prodId)
+        .then(result => {
+            res.redirect('/cart');
+        })
+        .catch(err => console.log(err));
 };
 
 exports.postOrder = (req, res, next) => {
@@ -110,7 +112,7 @@ exports.getOrders = (req, res, next) => {
             path: '/orders',
             pageTitle: 'Your Orders',
             orders: orders,
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
         });
     })
     .catch(err => console.log(err));
