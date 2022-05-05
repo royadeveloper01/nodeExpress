@@ -23,6 +23,7 @@ exports.postAddProduct = (req, res, next) => {
     product
     .save()
     .then(() => {
+        req.flash('success', 'New Product Added!!!');
         res.redirect('/admin/products');
     }).catch(err => {
         console.log(err)
@@ -75,10 +76,17 @@ exports.postEditProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
     Product.find() 
     .then(products => {
+        let message = req.flash('success');
+        if (message.length > 0) {
+            message = message[0];
+        } else {
+            message = null;
+        }
         res.render('admin/products', {
             prods: products, 
             pageTitle: 'Admin Products', 
             path: '/admin/products',
+            successMessage: message
         });  
     })
     .catch(err => console.log(err));
