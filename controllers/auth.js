@@ -1,20 +1,16 @@
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-// const sendInBlue = require('nodemailer-sendinblue-transport');
 
 const User = require("../models/user");
 
 const transporter = nodemailer.createTransport({
-    service: 'SendinBlue',
+    host: "smtp.mailtrap.io",
+    port: 2525,
     auth: {
-        // user: 'royadeveloper01@gmail.com',
-        apiKey: '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',
-        // apiUrl: 'https://api.sendinblue.com/v3.0',
-        // pass: 'smtp-relay.sendinblue.com'
+        user: '2eb4ca0d52d4fe',
+        pass: '26f2a2b8408b49'
     }
 });
-
-
 
 exports.getLogin = (req, res, next) => {
     let message = req.flash('error');
@@ -95,17 +91,14 @@ exports.postSignup = (req, res, next) => {
                 })
                 .then(result => {
                     res.redirect('/login');
-                    return transporter.sendMail({
+                    const mailOptions = {
                         to: email,
                         from: 'shop@node-complete.com',
-                        subject: 'Signup Successful',
-                        html: '<h1>You signed up successfully</h1>'
-                    })
-                    // .then(res => {
-                    //     console.log('Signup Successful')
-                    // }).catch(err => {
-                    //     console.log('Failed')
-                    // })
+                        subject: 'Welcome to Pablo Bay',
+                        text: 'This is our first message',
+                        html: '<b>Hey there! </b><br> We bring Love from Pablo Bay Team!!!'
+                    }
+                    return transporter.sendMail(mailOptions)
                 })
                 .catch(err => {
                     console.log(err);
