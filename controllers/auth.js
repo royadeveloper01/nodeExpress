@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
@@ -93,10 +95,10 @@ exports.postSignup = (req, res, next) => {
                     res.redirect('/login');
                     const mailOptions = {
                         to: email,
-                        from: 'shop@node-complete.com',
+                        from: 'pablo-bay@shop.com',
                         subject: 'Welcome to Pablo Bay',
                         text: 'This is our first message',
-                        html: '<b>Hey there! </b><br> We bring Love from Pablo Bay Team!!!'
+                        html: '<b>Hey there! </b><br> We bring you Love from Pablo Bay Team!!!'
                     }
                     return transporter.sendMail(mailOptions)
                 })
@@ -115,3 +117,118 @@ exports.postLogout = (req, res, next) => {
         res.redirect('/');
     });
 };
+
+exports.getResetPassword = (req, res, next) => {
+    let message = req.flash('error');
+    if (message.length > 0) {
+        message = message[0];
+    } else {
+        message = null;
+    }
+    res.render('auth/reset', {
+        path: '/reset-password',
+        pageTitle: 'Reset Password',
+        errorMessage: message
+    })
+};
+
+exports.postResetPassword = (req, res, next) => {
+    crypto.randomBytes(32, (err, buffer) => {
+        if (err) {
+            console.log(err);
+            return res.redirect('/reset-password')
+        }
+        const token = buffer.toString('hex');
+        User.findOne({email: req.body.email})
+        .then(user => {
+            if (!user) {
+                req.flash('error', 'No Account Found!');
+                return res.redirect('/reset-password');
+            }
+            user.resetToken = token;
+            user.resetTokenExpiration = Date.now() + 3600000;
+            user.save();
+        })
+        .then(result => {
+            const resetMailOptions = {
+                to: req.body.email,
+                from: 'pablo-bay@shop.com',
+                subject: 'Password reset',
+                text: 'Password reset message',
+                html: `
+                    <p>You requested a password reset</p>
+                    <p>Click this <a href="http://localhost:3000/reset-password/${token}">link</a> to set a new password</p>
+                `
+            }
+            res.redirect('/');
+            transporter.sendMail(resetMailOptions);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    });
+};
+
+exports.getNewPassword = (req, res, next) => {
+    const token = req.params.token;
+    User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+        .then(user => {
+            let message = req.flash('error');
+            if (message.length > 0) {
+                message = message[0];
+            } else {
+                message = null;
+            }
+            res.render('auth/update-password', {
+                path: '/update-password',
+                pageTitle: 'Update Password',
+                errorMessage: message,
+                userId: user._id.toString(),
+                passwordToken: token
+            });
+        })
+        .catch(err => {
+            console.log(err);
+        })
+};
+
+exports.postNewPassword = (req, res, next) => {
+    const newPassword = req.body.password;
+    const userId = req.body.userId;
+    const passwordToken = req.body.passwordToken;
+    let resetUser;
+
+    User.findOne({ 
+        resetToken: passwordToken,
+        resetTokenExpiration: { $gt: Date.now() },
+        _id: userId
+    })
+    .then(user => {
+        resetUser = user;
+        return bcrypt.hash(newPassword, 12);
+    })
+    .then(hashedPassword => {
+        resetUser.password = hashedPassword;
+        resetUser.resetToken = undefined;
+        resetUser.resetTokenExpiration = undefined;
+        return resetUser.save();
+    })
+    .then(result => {
+        let userEmail = resetUser.email;
+        const resetPasswordSuccess = {
+            to: userEmail,
+            from: 'pablo-bay@shop.com',
+            subject: 'Password reset Successfully',
+            text: 'Password reset was Successful',
+            html: `
+                <p>Password reset was Successful</p>
+                <p>Please keep it safe to avoid stories...</p>
+            `
+        }
+        res.redirect('/login');
+        transporter.sendMail(resetPasswordSuccess);
+    })
+    .catch(err => {
+        console.log(err);
+    })
+}
