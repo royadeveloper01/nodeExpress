@@ -217,7 +217,7 @@ form {
 
 .user-message--success {
   border: rgb(34, 109, 11);
-  background-color: rgb(48, 143, 29);
+  background-color: #00695c;
   color: #ffffff;
 }
 

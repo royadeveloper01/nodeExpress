@@ -214,7 +214,7 @@ exports.postNewPassword = (req, res, next) => {
         return resetUser.save();
     })
     .then(result => {
-        let userEmail = resetUser.email;
+        const userEmail = resetUser.email;
         const resetPasswordSuccess = {
             to: userEmail,
             from: 'pablo-bay@shop.com',
