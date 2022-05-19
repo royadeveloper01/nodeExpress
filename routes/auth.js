@@ -42,13 +42,16 @@ router.post(
                     return Promise.reject('Email exists already');
                 }
             });
-        }),
+        })
+        .normalizeEmail(),
         body(
             'password',
             'Please enter alphanumeric password at least 5 characters long')
             .isLength({ min: 5 })
-            .isAlphanumeric(),
-        body('confirmPassword').custom((value, { req }) => {
+            .isAlphanumeric()
+            .trim(),
+        body('confirmPassword').trim()
+            .custom((value, { req }) => {
             if (value !== req.body.password) {
                 throw new Error('Password did not match!')
             }
