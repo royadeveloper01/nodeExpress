@@ -1,3 +1,5 @@
+const { validationResult } = require('express-validator');
+
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -5,6 +7,9 @@ exports.getAddProduct = (req, res, next) => {
         pageTitle: 'Add Product', 
         path: '/admin/add-product',
         editing: false,
+        hasError: false,
+        errorMessage: null,
+        validationErrors: []
     });
 };
 
@@ -13,6 +18,25 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
     const price = req.body.price;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Add Product', 
+            path: '/admin/edit-product',
+            editing: false,
+            hasError: true,
+            product: {
+                title: title,
+                imageUrl: imageUrl,
+                description: description,
+                price: price
+            },
+            errorMessage: errors.array()[0].msg,
+            validationErrors: errors.array()
+        });
+    }
+
     const product = new Product({
         title: title, 
         imageUrl: imageUrl, 
@@ -46,6 +70,9 @@ exports.getEditProduct = (req, res, next) => {
             path: '/admin/edit-product',
             editing: editMode,
             product: product,
+            hasError: false,
+            errorMessage: null,
+            validationErrors: []
         });
     }).catch(err => console.log(err));
 }
@@ -57,6 +84,25 @@ exports.postEditProduct = (req, res, next) => {
     const updatedDescription = req.body.description;
     const updatedPrice = req.body.price;
     const updatedDate = Date.now();
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Edit Product', 
+            path: '/admin/edit-product',
+            editing: true,
+            hasError: true,
+            product: {
+                _id: prodId,
+                title: updatedTitle,
+                imageUrl: updatedImageUrl,
+                description: updatedDescription,
+                price: updatedPrice
+            },
+            errorMessage: errors.array()[0].msg,
+            validationErrors: errors.array()
+        });
+    }
 
     Product.findById(prodId)
     .then(product => {
