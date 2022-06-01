@@ -51,6 +51,7 @@ const authRoutes = require('./routes/auth');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname, 'public/assets')));
+app.use('/images',express.static(path.join(__dirname, 'images')));
 app.use(
     session({
         secret: 'my secret', 
