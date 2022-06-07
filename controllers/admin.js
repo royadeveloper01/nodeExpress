@@ -5,6 +5,8 @@ const Product = require('../models/product');
 
 const fileHelper = require('../util/file');
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getAddProduct = (req, res, next) => {
     res.render('admin/edit-product', {
         pageTitle: 'Add Product', 
@@ -144,21 +146,52 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.find({ userId: req.user._id }) 
-    .then(products => {
-        let message = req.flash('success');
+    const page = +req.query.page || 1;
+    let totalItems;
+    let message = req.flash('success');
         if (message.length > 0) {
             message = message[0];
         } else {
             message = null;
         }
+        
+    Product.find({ userId: req.user._id })
+    .countDocuments()
+    .then(numProducts => {
+        totalItems = numProducts;
+        return Product.find()
+            .skip((page - 1) * ITEMS_PER_PAGE)
+            .limit(ITEMS_PER_PAGE)
+    })
+    .then(products => {
         res.render('admin/products', {
-            prods: products, 
+            prods: products,
             pageTitle: 'Admin Products', 
             path: '/admin/products',
-            successMessage: message
-        });  
+            successMessage: message,
+            currentPage: page,           
+            hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        });
     })
+    // Product.find({ userId: req.user._id }) 
+    // .then(products => {
+    //     let message = req.flash('success');
+    //     if (message.length > 0) {
+    //         message = message[0];
+    //     } else {
+    //         message = null;
+    //     }
+    //     res.render('admin/products', {
+    //         prods: products, 
+    //         pageTitle: 'Admin Products', 
+    //         path: '/admin/products',
+    //         successMessage: message
+    //     });  
+    // })
     .catch(err => console.log(err));
 }
 
