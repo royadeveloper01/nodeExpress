@@ -39,6 +39,6 @@ router.post('/edit-product', [
     body('price', 'price is required').isFloat()
 ], isAuth, adminController.postEditProduct);
 
-router.post('/delete-product', isAuth, adminController.postDeleteProduct);
+router.delete('/product/:productId', isAuth, adminController.deleteProduct);
 
 module.exports = router;
