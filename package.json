@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Node JS App",
   "main": "app.js",
+  "engines": {
+    "node": "16.14.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=production DB_USERNAME=prince DB_PASSWORD=node1234 MONGO_DEFAULT_DB=shop node app.js",
