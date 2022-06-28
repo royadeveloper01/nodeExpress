@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -8,6 +9,9 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
 const app = express();
 
@@ -17,7 +21,7 @@ const User = require('./models/user');
 app.set('view engine', 'ejs');
 // app.set('views', 'views'); // A default setting for the template engine, you do not need it, if you already have a views folder.
 
-const MONGODB_URI = "mongodb+srv://prince:node1234@cluster0.nihym.mongodb.net/shop?retryWrites=true&w=majority";
+const MONGODB_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.nihym.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 
 const store = new MongoDBStore({
     uri: MONGODB_URI,
@@ -47,6 +51,12 @@ const fileFilter = (req, file, cb) => {
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access log'), { flags: 'a' });
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
@@ -95,7 +105,8 @@ app.use(errorPageController.getErrorPage);
 mongoose
 .connect(MONGODB_URI)
 .then(result => {
-    app.listen(3000)    
+    console.log('Connected');
+    app.listen(process.env.PORT || 3000);    
 })
 .catch(err => {
     console.log(err);
