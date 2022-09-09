@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 
 const express = require('express');
-require('dotenv').config();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -13,6 +12,9 @@ const multer = require('multer');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 

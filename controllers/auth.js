@@ -7,11 +7,11 @@ const { validationResult } = require('express-validator');
 const User = require("../models/user");
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.mailtrap.io",
-    port: 2525,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
     auth: {
-        user: '8cc14a2c9c5bc6',
-        pass: 'c8a52928a80ebd'
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
     }
 });
 
